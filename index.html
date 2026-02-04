@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>CRUD Sinh Viên</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    img { width: 50px; border-radius: 50%; }
+    input { margin: 4px; padding: 6px; }
+    button { padding: 6px 10px; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<h2>QUẢN LÝ SINH VIÊN</h2>
+
+<form id="formSV">
+  <input id="name" placeholder="Tên sinh viên" required>
+  <input id="address" placeholder="Địa chỉ">
+  <input id="email" placeholder="Email">
+  <input id="phone" placeholder="SĐT">
+  <input id="avatar" placeholder="Link avatar">
+  <button type="submit">Thêm</button>
+</form>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Avatar</th>
+      <th>Tên</th>
+      <th>Địa chỉ</th>
+      <th>Email</th>
+      <th>SĐT</th>
+      <th>Hành động</th>
+    </tr>
+  </thead>
+  <tbody id="listSV"></tbody>
+</table>
+
+<script>
+const API = "https://6982fe039c3efeb892a40037.mockapi.io/sinhvien";
+
+function loadSV() {
+  fetch(API)
+    .then(res => res.json())
+    .then(data => {
+      const tbody = document.getElementById("listSV");
+      tbody.innerHTML = "";
+      data.forEach(sv => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${sv.id}</td>
+            <td><img src="${sv.avatar}"></td>
+            <td>${sv.name}</td>
+            <td>${sv.address}</td>
+            <td>${sv.email}</td>
+            <td>${sv.phone}</td>
+            <td>
+              <button onclick="xoaSV(${sv.id})">Xóa</button>
+            </td>
+          </tr>
+        `;
+      });
+    });
+}
+
+function xoaSV(id) {
+  if(confirm("Xóa sinh viên này?")) {
+    fetch(API + "/" + id, { method: "DELETE" })
+      .then(() => loadSV());
+  }
+}
+
+document.getElementById("formSV").onsubmit = function(e) {
+  e.preventDefault();
+  const sv = {
+    name: name.value,
+    address: address.value,
+    email: email.value,
+    phone: phone.value,
+    avatar: avatar.value || "https://i.pravatar.cc/150"
+  };
+  fetch(API, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(sv)
+  }).then(() => {
+    this.reset();
+    loadSV();
+  });
+};
+
+loadSV();
+</script>
+
+</body>
+</html>
